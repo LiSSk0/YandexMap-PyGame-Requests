@@ -6,8 +6,9 @@ import requests
 
 SIZE = WIDTH, HEIGHT = 600, 450
 x, y = 133.794557, -28.694111
+spn_x, spn_y = 20, 20
 
-map_request = f"https://static-maps.yandex.ru/1.x/?ll={x},{y}&spn=30,20&l=sat"
+map_request = f"https://static-maps.yandex.ru/1.x/?ll={x},{y}&spn={spn_x},{spn_y}&l=sat"
 
 response = requests.get(map_request)
 
