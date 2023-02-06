@@ -6,7 +6,7 @@ import requests
 
 SIZE = WIDTH, HEIGHT = 600, 450
 spn_x, spn_y = 20, 20
-FPS = 5
+FPS = 10
 
 
 def do_map(x, y):
@@ -41,13 +41,17 @@ def main():
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    x -= 1
+                    if x - spn_x - 1 > -180:
+                        x -= 1
                 if event.key == pygame.K_RIGHT:
-                    x += 1
+                    if x + spn_x + 1 < 180:
+                        x += 1
                 if event.key == pygame.K_UP:
-                    y += 1
+                    if y + spn_y + 1 < 90:
+                        y += 1
                 if event.key == pygame.K_DOWN:
-                    y -= 1
+                    if y - spn_y - 1 > -90:
+                        y -= 1
                 map_file = do_map(x, y)
 
         clock.tick(FPS)
