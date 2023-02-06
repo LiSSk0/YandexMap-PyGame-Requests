@@ -4,8 +4,25 @@ import sys
 import pygame
 import requests
 
-SIZE = WIDTH, HEIGHT = 600, 450
+SIZE = WIDTH, HEIGHT = 800, 450
 FPS = 5
+
+def CheckWhereClicked(position):
+    if 130 < position[0] < 200 and 20 < position[1] < 40:
+        return True
+    return False
+
+
+def place_inputting(screen, name):
+    font = pygame.font.Font(None, 27)
+    pygame.draw.rect(screen, '#AE604D', (130, 20, 70, 20))
+    pygame.draw.rect(screen, '#000000', (130, 20, 70, 20), 1)
+    pygame.draw.rect(screen, '#AE604D', (0, 0, 200, 20))
+    pygame.draw.rect(screen, '#000000', (0, 0, 200, 20), 1)
+    text = font.render("find", True, '#000000')
+    text2 = font.render(name, True, '#000000')
+    screen.blit(text2, (10, 0))
+    screen.blit(text, (150, 22))
 
 
 def do_map(x, y, spn_x, spn_y):
@@ -28,7 +45,9 @@ def do_map(x, y, spn_x, spn_y):
 def main():
     x, y = 133.794557, -28.694111
     spn_x, spn_y = 1.7, 1.7
-
+    if spn_x < 0 or spn_y < 0 or spn_x > 50 or spn_y > 50:
+        spn_x, spn_y = 1.7, 1.7
+    text = "Австралия"
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
     map_file = do_map(x, y, spn_x, spn_y)
@@ -39,25 +58,44 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_position = pygame.mouse.get_pos()
+                if CheckWhereClicked(mouse_position):
+                    print(text)
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    spn_x *= 1.5
-                    spn_y *= 1.5
-                if event.key == pygame.K_DOWN:
+
+                if event.key == pygame.K_BACKSPACE:
+                    text = text[:-1]
+                else:
+                    text += event.unicode
+                if event.key == pygame.K_PAGEUP:
+                    if 0 < spn_x < 1:
+                        spn_x += 0.001
+                    elif spn_x < 20:
+                        spn_x += 5
+                    elif spn_x * 3 < 100:
+                        spn_x *= 3
+                    if 0 < spn_y < 1:
+                        spn_y += 0.001
+                    elif spn_y < 20:
+                        spn_y += 5
+                    elif spn_y * 3 < 100:
+                        spn_y *= 3
+                if event.key == pygame.K_PAGEDOWN:
                     spn_x *= 0.5
                     spn_y *= 0.5
                 if event.key == pygame.K_LEFT:
                     x -= 1
                 if event.key == pygame.K_RIGHT:
                     x += 1
-                #if event.key == pygame.K_UP:
-                #    y += 1
-                #if event.key == pygame.K_DOWN:
-                #    y -= 1
+                if event.key == pygame.K_UP:
+                    y += 1
+                if event.key == pygame.K_DOWN:
+                    y -= 1
                 map_file = do_map(x, y, spn_x, spn_y)
-
         clock.tick(FPS)
-        screen.blit(pygame.image.load(map_file), (0, 0))
+        screen.blit(pygame.image.load(map_file), (200, 0))
+        place_inputting(screen, text)
         pygame.display.flip()
     pygame.quit()
     os.remove(map_file)
