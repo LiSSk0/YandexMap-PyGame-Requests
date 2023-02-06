@@ -9,8 +9,8 @@ spn_x, spn_y = 20, 20
 FPS = 10
 
 
-def do_map(x, y):
-    map_request = f"https://static-maps.yandex.ru/1.x/?ll={x},{y}&spn={spn_x},{spn_y}&l=sat"
+def do_map(x, y, type_map):
+    map_request = f"https://static-maps.yandex.ru/1.x/?ll={x},{y}&spn={spn_x},{spn_y}&l={type_map}"
 
     response = requests.get(map_request)
     if not response:
@@ -28,10 +28,11 @@ def do_map(x, y):
 
 def main():
     x, y = 133.794557, -28.694111
+    map_type = 'map'
 
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
-    map_file = do_map(x, y)
+    map_file = do_map(x, y, map_type)
 
     clock = pygame.time.Clock()
     running = True
@@ -54,10 +55,23 @@ def main():
                 if event.key == pygame.K_DOWN:
                     if y - spn_y - y_step > -90:
                         y -= y_step
-                map_file = do_map(x, y)
+
+                if event.key == pygame.K_1:
+                    map_type = 'map'
+                if event.key == pygame.K_2:
+                    map_type = 'sat'
+                if event.key == pygame.K_3:
+                    map_type = 'sat,skl'
+
+                map_file = do_map(x, y, map_type)
 
         clock.tick(FPS)
         screen.blit(pygame.image.load(map_file), (0, 0))
+
+        font = pygame.font.Font(None, 35)
+        text = font.render("1 - map, 2 - sat, 3 - hybrid", True, (0, 100, 100))
+        screen.blit(text, (0, 0))
+
         pygame.display.flip()
     pygame.quit()
     os.remove(map_file)
