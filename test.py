@@ -5,11 +5,10 @@ import pygame
 import requests
 
 SIZE = WIDTH, HEIGHT = 600, 450
-spn_x, spn_y = 20, 20
-FPS = 10
+FPS = 5
 
 
-def do_map(x, y):
+def do_map(x, y, spn_x, spn_y):
     map_request = f"https://static-maps.yandex.ru/1.x/?ll={x},{y}&spn={spn_x},{spn_y}&l=sat"
 
     response = requests.get(map_request)
@@ -28,10 +27,11 @@ def do_map(x, y):
 
 def main():
     x, y = 133.794557, -28.694111
+    spn_x, spn_y = 1.7, 1.7
 
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
-    map_file = do_map(x, y)
+    map_file = do_map(x, y, spn_x, spn_y)
 
     clock = pygame.time.Clock()
     running = True
@@ -40,19 +40,21 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_PAGEUP:
+                    spn_x *= 1.5
+                    spn_y *= 1.5
+                if event.key == pygame.K_PAGEDOWN:
+                    spn_x *= 0.5
+                    spn_y *= 0.5
                 if event.key == pygame.K_LEFT:
-                    if x - spn_x - 1 > -180:
-                        x -= 1
+                    x -= 1
                 if event.key == pygame.K_RIGHT:
-                    if x + spn_x + 1 < 180:
-                        x += 1
+                    x += 1
                 if event.key == pygame.K_UP:
-                    if y + spn_y + 1 < 90:
-                        y += 1
+                   y += 1
                 if event.key == pygame.K_DOWN:
-                    if y - spn_y - 1 > -90:
-                        y -= 1
-                map_file = do_map(x, y)
+                   y -= 1
+                map_file = do_map(x, y, spn_x, spn_y)
 
         clock.tick(FPS)
         screen.blit(pygame.image.load(map_file), (0, 0))
