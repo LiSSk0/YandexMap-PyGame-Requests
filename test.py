@@ -28,6 +28,8 @@ def do_map(x, y, spn_x, spn_y):
 def main():
     x, y = 133.794557, -28.694111
     spn_x, spn_y = 1.7, 1.7
+    if spn_x < 0 or spn_y < 0 or spn_x > 50 or spn_y > 50:
+        spn_x, spn_y = 1.7, 1.7
 
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
@@ -41,8 +43,18 @@ def main():
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_PAGEUP:
-                    spn_x *= 1.5
-                    spn_y *= 1.5
+                    if 0 < spn_x < 1:
+                        spn_x += 0.001
+                    elif spn_x < 20:
+                        spn_x += 5
+                    elif spn_x * 3 < 100:
+                        spn_x *= 3
+                    if 0 < spn_y < 1:
+                        spn_y += 0.001
+                    elif spn_y < 20:
+                        spn_y += 5
+                    elif spn_y * 3 < 100:
+                        spn_y *= 3
                 if event.key == pygame.K_PAGEDOWN:
                     spn_x *= 0.5
                     spn_y *= 0.5
@@ -51,9 +63,9 @@ def main():
                 if event.key == pygame.K_RIGHT:
                     x += 1
                 if event.key == pygame.K_UP:
-                   y += 1
+                    y += 1
                 if event.key == pygame.K_DOWN:
-                   y -= 1
+                    y -= 1
                 map_file = do_map(x, y, spn_x, spn_y)
 
         clock.tick(FPS)
