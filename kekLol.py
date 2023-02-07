@@ -5,7 +5,31 @@ import pygame
 import requests
 
 SIZE = WIDTH, HEIGHT = 800, 450
-FPS = 5
+FPS = 50
+
+
+def get_coords(name):
+    geocoder_request = f"http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode={name}&format=json"
+
+    response = requests.get(geocoder_request)
+    if response:
+        json_response = response.json()
+        try:
+            toponym = \
+            json_response["response"]["GeoObjectCollection"]["featureMember"][0][
+                "GeoObject"]
+            toponym_coodrinates = toponym["Point"]["pos"]
+            return toponym_coodrinates
+        except IndexError:
+            print("Ошибка выполнения запроса:")
+            return None
+
+    else:
+        print("Ошибка выполнения запроса:")
+        print(geocoder_request)
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        return None
+
 
 def CheckWhereClicked(position):
     if 130 < position[0] < 200 and 20 < position[1] < 40:
@@ -26,7 +50,7 @@ def place_inputting(screen, name):
 
 
 def do_map(x, y, spn_x, spn_y):
-    map_request = f"https://static-maps.yandex.ru/1.x/?ll={x},{y}&spn={spn_x},{spn_y}&l=sat"
+    map_request = f"https://static-maps.yandex.ru/1.x/?ll={x},{y}&spn={spn_x},{spn_y}&l=sat&pt={x},{y},vkbkm"
 
     response = requests.get(map_request)
     if not response:
@@ -61,26 +85,34 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_position = pygame.mouse.get_pos()
                 if CheckWhereClicked(mouse_position):
-                    print(text)
+                    k = get_coords(text)
+                    if k is not None:
+                        k = k.split()
+                        x, y = float(k[0]), float(k[1])
+                        map_file = do_map(x, y, spn_x, spn_y)
             if event.type == pygame.KEYDOWN:
-
                 if event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
                 else:
                     text += event.unicode
                 if event.key == pygame.K_PAGEUP:
-                    if 0 < spn_x < 1:
-                        spn_x += 0.001
+                    if 0 < spn_x < 0.1:
+                        spn_x += 0.01
+                    elif 0.1 <= spn_x < 1:
+                        spn_x += 0.2
                     elif spn_x < 20:
                         spn_x += 5
                     elif spn_x * 3 < 100:
                         spn_x *= 3
-                    if 0 < spn_y < 1:
-                        spn_y += 0.001
+                    if 0 < spn_y < 0.1:
+                        spn_y += 0.01
+                    elif 0.1 <= spn_y < 1:
+                        spn_y += 0.2
                     elif spn_y < 20:
                         spn_y += 5
                     elif spn_y * 3 < 100:
                         spn_y *= 3
+                    print(spn_x, spn_y)
                 if event.key == pygame.K_PAGEDOWN:
                     spn_x *= 0.5
                     spn_y *= 0.5
